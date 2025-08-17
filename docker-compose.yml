@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  gta-rp-server:
+    build: .
+    container_name: gta-rp-server
+    ports:
+      - "3000:3000"    # Web admin panel port
+      - "22005:22005"  # RageMP server port (when available)
+    volumes:
+      - ./gamemode.js:/app/gamemode.js
+      - ./ragemp-server.conf:/app/ragemp-server.conf
+      - ./public:/app/public
+      - ./logs:/app/logs
+      - ./ragemp-server:/app/ragemp-server  # Mount RageMP binary if available
+      - ./bin:/app/bin                      # Mount RageMP bin directory
+      - ./dotnet:/app/dotnet                # Mount RageMP dotnet directory
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - RAGEMP_PORT=22005
+    restart: unless-stopped
+    networks:
+      - gta-rp-network
+
+  # Optional: MySQL database for persistent data
+  mysql:
+    image: mysql:8.0
+    container_name: gta-rp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: gta_rp
+      MYSQL_USER: gta_user
+      MYSQL_PASSWORD: gta_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - gta-rp-network
+
+  # Optional: Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: gta-rp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - gta-rp-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  gta-rp-network:
+    driver: bridge
