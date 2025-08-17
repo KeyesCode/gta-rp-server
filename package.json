@@ -1,36 +1,58 @@
 {
   "name": "gta-rp-server",
   "version": "1.0.0",
-  "description": "GTA RP Server using RageMP with Node.js gamemode",
-  "main": "index.js",
+  "description": "GTA RP Server with RageMP and Node.js backend",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "echo 'Build completed'",
-    "test": "echo 'No tests specified'"
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev:watch": "nodemon --exec ts-node src/server.ts --watch src",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build",
+    "test": "npm run test:quick",
+    "test:quick": "ts-node test-scripts/quick-test.ts",
+    "test:simulation": "ts-node test-scripts/test-game-simulation.ts",
+    "test:all": "./test-scripts/run-tests.sh",
+    "lint": "tsc --noEmit",
+    "lint:fix": "tsc --noEmit --fix"
   },
   "keywords": [
-    "gtarp",
-    "ragemp",
     "gta",
+    "ragemp",
     "roleplay",
-    "server"
+    "server",
+    "typescript",
+    "nodejs",
+    "express",
+    "socketio"
   ],
   "author": "KeyesCode",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "mysql2": "^3.6.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.8.1",
     "winston": "^3.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@ragempcommunity/types-client": "^2.1.9",
+    "@ragempcommunity/types-server": "^2.1.9",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/node": "^20.5.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

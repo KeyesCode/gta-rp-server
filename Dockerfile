@@ -21,22 +21,25 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs
 
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Copy package files first for better caching
+# Copy package files
 COPY package*.json ./
 
-# Install Node.js dependencies
+# Install dependencies
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Create logs directory
-RUN mkdir -p logs
+# Create necessary directories
+RUN mkdir -p logs dist
 
-# Create startup script for development
+# Build TypeScript
+RUN npm run build
+
+# Create start script
 RUN echo '#!/bin/bash\n\
 echo "🎮 Starting GTA RP Server with RageMP..."\n\
 echo "Node.js version: $(node --version)"\n\
@@ -88,5 +91,5 @@ fi' > /app/start.sh && chmod +x /app/start.sh
 # Expose ports
 EXPOSE 3000 22005
 
-# Set default command
+# Start command
 CMD ["/app/start.sh"]
