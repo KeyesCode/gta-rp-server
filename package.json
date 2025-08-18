@@ -4,7 +4,8 @@
   "description": "GTA RP Server with RageMP and Node.js backend",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-public",
+    "copy-public": "cp -r public dist/",
     "build:watch": "tsc --watch",
     "start": "node dist/src/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
