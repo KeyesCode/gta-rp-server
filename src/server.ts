@@ -4,6 +4,9 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import path from 'path';
 import dotenv from 'dotenv';
 
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
 import { serverConfig } from './config/server';
 import { logger, logServerEvent, logError, logPlayerAction, logRageMPEvent, logChatMessage, logVehicleEvent } from './utils/logger';
 import { 
@@ -17,6 +20,8 @@ import {
   JobStartData,
   ChatMessageData
 } from './types';
+
+const execAsync = promisify(exec);
 
 // Load environment variables
 dotenv.config();
@@ -82,6 +87,31 @@ class GTARPServer {
 
     this.app.get('/api/stats', (req: Request, res: Response) => {
       res.json(this.getServerStats());
+    });
+
+    // Game server status endpoint
+    this.app.get('/api/game-status', async (req: Request, res: Response) => {
+      try {
+        // Check if port 22005 is listening
+        const { stdout } = await execAsync('ss -tlnp | grep :22005');
+        const isOnline = stdout.trim().length > 0;
+        
+        res.json({
+          online: isOnline,
+          port: 22005,
+          timestamp: new Date().toISOString(),
+          status: isOnline ? 'online' : 'offline'
+        });
+      } catch (error) {
+        // If grep doesn't find anything, port is not listening
+        res.json({
+          online: false,
+          port: 22005,
+          timestamp: new Date().toISOString(),
+          status: 'offline',
+          error: 'Port 22005 not listening'
+        });
+      }
     });
 
     // Serve the main page
