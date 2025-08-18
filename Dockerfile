@@ -54,7 +54,7 @@ if [ -f "ragemp-server" ]; then\n\
     echo "🚀 Starting RageMP server..."\n\
     \n\
     # Start RageMP server in background\n\
-    ./ragemp-server &\n\
+    ./ragemp-server ragemp-server.conf &\n\
     RAGEMP_PID=$!\n\
     echo "🎮 RageMP server started with PID: $RAGEMP_PID"\n\
     \n\
