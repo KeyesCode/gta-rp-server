@@ -11,6 +11,20 @@
         .status { background: #333; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .online { color: #4CAF50; }
         .offline { color: #f44336; }
+        .loading { color: #FF9800; }
+        .status-indicator { font-size: 1.2em; font-weight: bold; }
+        .refresh-btn { 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-left: 10px; 
+        }
+        .refresh-btn:hover { background: #45a049; }
+        .last-updated { font-size: 0.8em; color: #888; margin-top: 10px; }
+        .server-info { background: #444; padding: 15px; border-radius: 6px; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -22,7 +36,7 @@
         
         <div class="status">
             <h2>Server Status</h2>
-            <p><span class="online">�� Online</span></p>
+            <p><span class="online">✅ Online</span></p>
             <p>Web Admin Panel: <strong>Active</strong></p>
             <p>Game Server: <strong>Port 22005</strong></p>
         </div>
@@ -30,7 +44,11 @@
         <div class="status">
             <h2>Connect to Game</h2>
             <p>Server Address: <strong>est-rp.com:22005</strong></p>
-            <p>Status: <span class="offline">🔴 Offline</span> (RageMP not configured yet)</p>
+            <p>
+                Status: <span id="gameStatus" class="loading">🟡 Checking...</span>
+                <button class="refresh-btn" onclick="checkGameServerStatus()">🔄 Refresh</button>
+            </p>
+            <div id="lastUpdated" class="last-updated"></div>
         </div>
         
         <div class="status">
@@ -38,6 +56,68 @@
             <p><a href="/api/stats" style="color: #4CAF50;">Server Stats</a></p>
             <p><a href="/api/players" style="color: #4CAF50;">Player List</a></p>
         </div>
+
+        <div class="server-info">
+            <h3>🔄 Auto-refresh Status</h3>
+            <p>Status updates automatically every 30 seconds</p>
+            <p>Press <strong>R</strong> key or click refresh button for immediate update</p>
+        </div>
     </div>
+
+    <script>
+        // Function to check game server status
+        async function checkGameServerStatus() {
+            const statusElement = document.getElementById('gameStatus');
+            const lastUpdatedElement = document.getElementById('lastUpdated');
+            
+            // Show loading state
+            statusElement.innerHTML = '🟡 Checking...';
+            statusElement.className = 'loading';
+            
+            try {
+                // Try to connect to the game server status API
+                const response = await fetch('/api/game-status');
+                const data = await response.json();
+                
+                if (data.online) {
+                    statusElement.innerHTML = '🟢 Online';
+                    statusElement.className = 'online';
+                } else {
+                    statusElement.innerHTML = '🔴 Offline';
+                    statusElement.className = 'offline';
+                }
+                
+                // Update last checked time
+                const now = new Date();
+                lastUpdatedElement.innerHTML = `Last checked: ${now.toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('Error checking game server status:', error);
+                statusElement.innerHTML = '🔴 Offline (Connection Failed)';
+                statusElement.className = 'offline';
+                lastUpdatedElement.innerHTML = `Last checked: ${new Date().toLocaleTimeString()} (Error)`;
+            }
+        }
+
+        // Check status when page loads
+        checkGameServerStatus();
+        
+        // Check status every 30 seconds
+        setInterval(checkGameServerStatus, 30000);
+        
+        // Add keyboard shortcut (R key) to refresh
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'r' || event.key === 'R') {
+                checkGameServerStatus();
+            }
+        });
+
+        // Show loading message while checking
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('gameStatus');
+            statusElement.innerHTML = '🟡 Checking...';
+            statusElement.className = 'loading';
+        });
+    </script>
 </body>
 </html>
