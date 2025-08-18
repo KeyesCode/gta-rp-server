@@ -92,27 +92,27 @@ class GTARPServer {
     // Game server status endpoint
     this.app.get('/api/game-status', async (req: Request, res: Response) => {
       try {
-        // Check if port 22005 is listening
-        const { stdout } = await execAsync('ss -tlnp | grep :22005');
-        const isOnline = stdout.trim().length > 0;
-        
-        res.json({
-          online: isOnline,
-          port: 22005,
-          timestamp: new Date().toISOString(),
-          status: isOnline ? 'online' : 'offline'
-        });
+          // Check if RageMP process is running instead of checking port
+          const { stdout } = await execAsync('ps aux | grep ragemp-server | grep -v grep');
+          const isOnline = stdout.trim().length > 0;
+          
+          res.json({
+              online: isOnline,
+              port: 22005,
+              timestamp: new Date().toISOString(),
+              status: isOnline ? 'online' : 'offline'
+          });
       } catch (error) {
-        // If grep doesn't find anything, port is not listening
-        res.json({
-          online: false,
-          port: 22005,
-          timestamp: new Date().toISOString(),
-          status: 'offline',
-          error: 'Port 22005 not listening'
-        });
+          // If no process found, server is offline
+          res.json({
+              online: false,
+              port: 22005,
+              timestamp: new Date().toISOString(),
+              status: 'offline',
+              error: 'RageMP process not found'
+          });
       }
-    });
+  });
 
     // Serve the main page
     this.app.get('/', (req: Request, res: Response) => {
